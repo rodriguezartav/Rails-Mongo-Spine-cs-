@@ -1,0 +1,22 @@
+!!!Strict
+%html{ }
+	%head
+		%title Invoice App
+		%meta{'http-equiv'=>"Content-Type", :content=>"text/html; charset=utf-8"}/
+		%meta{'http-equiv'=>"Content-Language", :content=>"en-us"}/
+		
+		= stylesheet_link_tag :application
+		= javascript_include_tag :vendor
+		%script{:src => "/application.js", :type => 'text/javascript', :charset => 'utf-8'}
+			
+	
+		:javascript
+			var exports = this;
+			jQuery(function(){
+				var App = require("app");
+				exports.App = new App({el: $("body")});
+			})
+
+	%body
+		#bee
+		= yield

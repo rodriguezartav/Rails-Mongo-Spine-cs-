@@ -1,0 +1,25 @@
+%h1 Listing bees
+
+%table
+  %tr
+    %th Name
+    %th Email
+    %th Username
+    %th Password
+    %th
+    %th
+    %th
+
+  - @bees.each do |bee|
+    %tr
+      %td= bee.name
+      %td= bee.email
+      %td= bee.username
+      %td= bee.password
+      %td= link_to 'Show', bee
+      %td= link_to 'Edit', edit_bee_path(bee)
+      %td= link_to 'Destroy', bee, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Bee', new_bee_path

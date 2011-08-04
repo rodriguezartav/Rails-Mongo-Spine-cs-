@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @bee.name
+%p
+  %b Email:
+  = @bee.email
+%p
+  %b Username:
+  = @bee.username
+%p
+  %b Password:
+  = @bee.password
+
+= link_to 'Edit', edit_bee_path(@bee)
+\|
+= link_to 'Back', bees_path
