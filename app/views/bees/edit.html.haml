@@ -1,7 +1,11 @@
-%h1 Editing bee
+.title 
+  %span change it, but it's still going to be a bee
 
 = render 'form'
 
-= link_to 'Show', @bee
-\|
-= link_to 'Back', bees_path
+.action_bar
+  .action_button
+    %a{:href => "#",:onclick=>"$('form').submit()"} Save
+
+  .action_button
+    = link_to 'Back', bees_path

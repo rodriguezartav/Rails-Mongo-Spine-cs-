@@ -1,25 +1,24 @@
-%h1 Listing bees
+.title 
+	%span This are all the bee's
 
-%table
-  %tr
-    %th Name
-    %th Email
-    %th Username
-    %th Password
-    %th
-    %th
-    %th
+%ul.list.content_panel
+	%li.header
+		%span Name
+		%span Email
+		%span Username
+		%span Password
 
-  - @bees.each do |bee|
-    %tr
-      %td= bee.name
-      %td= bee.email
-      %td= bee.username
-      %td= bee.password
-      %td= link_to 'Show', bee
-      %td= link_to 'Edit', edit_bee_path(bee)
-      %td= link_to 'Destroy', bee, :confirm => 'Are you sure?', :method => :delete
+	- @bees.each do |bee|
+		%li
+			%span= bee.name
+			%span= bee.email
+			%span= bee.username
+			%span= bee.password
+			%span.button= link_to 'Edit', edit_bee_path(bee)
+			%span.button= link_to 'Destroy', bee, :confirm => 'Are you sure?', :method => :delete
 
-%br
+.action_bar
 
-= link_to 'New Bee', new_bee_path
+	.action_button
+		= link_to 'New', new_bee_path
+

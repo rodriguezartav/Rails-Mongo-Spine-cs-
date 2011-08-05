@@ -1,4 +1,5 @@
 class BeesController < ApplicationController
+
   # GET /bees
   # GET /bees.json
   def index

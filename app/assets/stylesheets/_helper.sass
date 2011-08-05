@@ -1,0 +1,61 @@
+=body_row()
+	clear: both
+	min-width: 960px
+	position: relative
+	width: 100%
+	
+=wrapper()
+	position: relative
+	margin-left: auto
+	margin-right: auto
+	width: $page_size
+
+=gridify()
+	display: inline-block
+	vertical-align: top
+
+=hoverify($c1,$c2,$btn: true)
+	background-color: $c1
+	color: $c2
+	a
+		color: $c2
+
+	&:hover
+		background-color: $c2
+		color: $c1
+		a
+			color: $c1
+	&.active
+		background-color: $c2
+		color: $c1
+		&:hover
+			$c3: darken($c2,10%)
+			background-color: $c3
+			a
+				color: $c1
+
+	@if $btn
+		cursor: pointer
+
+=iconify($left,$top,$h_left,$h_top)
+	background-position: $left $top
+	&:hover
+		background-position: $h_left $h_top
+
+=buttonify()
+	+hoverify(#fff,#333,true)
+	+gridify()
+	margin: 8px
+	border: 1px solid #333
+	padding: 5px
+	a
+		padding: 7px
+
+=relativify($left,$top)
+	position: relative
+	left: $left
+	top: $top
+
+
+		
+	

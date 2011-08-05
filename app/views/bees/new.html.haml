@@ -1,5 +1,12 @@
-%h1 New bee
+.title 
+  %span Create a new Bee
 
 = render 'form'
 
-= link_to 'Back', bees_path
+.action_bar
+  .action_button
+    %a{:href => "#",:onclick=>"$('form').submit()"} Save
+
+  .action_button
+    = link_to 'Back', bees_path
+

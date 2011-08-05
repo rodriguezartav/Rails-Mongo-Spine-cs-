@@ -12,8 +12,11 @@
   $ = Spine.$;
   Spine.Manager = (function() {
     __extends(Manager, Spine.Module);
+    Manager.include(Spine.Events);
     function Manager() {
+      this.controllers = [];
       this.add.apply(this, arguments);
+      this.bind("change", this.change);
     }
     Manager.prototype.add = function() {
       var cont, controllers, _i, _len, _results;
@@ -26,22 +29,28 @@
       return _results;
     };
     Manager.prototype.addOne = function(controller) {
-      this.bind("change", function(current, args) {
-        if (controller === current) {
-          return controller.activate.apply(controller, args);
-        } else {
-          return controller.deactivate.apply(controller, args);
-        }
-      });
-      return controller.active(__bind(function() {
+      controller.active(__bind(function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return this.trigger("change", controller, args);
       }, this));
+      return this.controllers.push(controller);
+    };
+    Manager.prototype.deactivate = function() {
+      return this.trigger("change", false, arguments);
+    };
+    Manager.prototype.change = function(current, args) {
+      var cont, _i, _len, _ref, _results;
+      _ref = this.controllers;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        cont = _ref[_i];
+        _results.push(cont === current ? cont.activate.apply(cont, args) : cont.deactivate.apply(cont, args));
+      }
+      return _results;
     };
     return Manager;
   })();
-  Spine.Manager.include(Spine.Events);
   Spine.Controller.include({
     active: function() {
       var args;

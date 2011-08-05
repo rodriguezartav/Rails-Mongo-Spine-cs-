@@ -16,6 +16,7 @@
   escapeRegExp = /[-[\]{}()+?.,\\^$|#\s]/g;
   Spine.Route = (function() {
     __extends(Route, Spine.Module);
+    Route.extend(Spine.Events);
     Route.historySupport = "history" in window;
     Route.routes = [];
     Route.options = {
@@ -33,7 +34,7 @@
         }
         return _results;
       } else {
-        return this.routes.push(new this(path, callback));
+        return this.routes.unshift(new this(path, callback));
       }
     };
     Route.setup = function(options) {
@@ -116,14 +117,16 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         route = _ref[_i];
         if (route.match(path, options)) {
+          this.trigger("change", route, path);
           return route;
         }
       }
     };
     function Route(path, callback) {
       var match;
-      this.names = [];
+      this.path = path;
       this.callback = callback;
+      this.names = [];
       if (typeof path === "string") {
         while ((match = namedParam.exec(path)) !== null) {
           this.names.push(match[1]);
@@ -151,8 +154,7 @@
           options[this.names[i]] = param;
         }
       }
-      this.callback.call(null, options);
-      return true;
+      return this.callback.call(null, options) !== false;
     };
     return Route;
   })();

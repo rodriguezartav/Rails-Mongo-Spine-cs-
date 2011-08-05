@@ -13,9 +13,6 @@
     child.__super__ = parent.prototype;
     return child;
   };
-  $ = this.jQuery || this.Zepto || function() {
-    return arguments[0];
-  };
   Events = {
     bind: function(ev, callback) {
       var calls, evs, name, _i, _len;
@@ -94,6 +91,9 @@
     function Module() {}
     Module.include = function(obj) {
       var included, key, value;
+      if (!obj) {
+        throw "include(obj) requires obj";
+      }
       for (key in obj) {
         value = obj[key];
         if (__indexOf.call(moduleKeywords, key) < 0) {
@@ -108,6 +108,9 @@
     };
     Module.extend = function(obj) {
       var extended, key, value;
+      if (!obj) {
+        throw "extend(obj) requires obj";
+      }
       for (key in obj) {
         value = obj[key];
         if (__indexOf.call(moduleKeywords, key) < 0) {
@@ -134,20 +137,9 @@
   })();
   Model = (function() {
     __extends(Model, Module);
+    Model.extend(Events);
     Model.records = {};
     Model.attributes = [];
-    Model.setup = function() {
-      var Instance;
-      Instance = (function() {
-        __extends(Instance, this);
-        function Instance() {
-          Instance.__super__.constructor.apply(this, arguments);
-        }
-        return Instance;
-      }).call(this);
-      Instance.configure.apply(Instance, arguments);
-      return Instance;
-    };
     Model.configure = function() {
       var attributes, name;
       name = arguments[0], attributes = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -235,7 +227,7 @@
       _results = [];
       for (key in _ref) {
         value = _ref[key];
-        _results.push(callback(value));
+        _results.push(callback(value.clone()));
       }
       return _results;
     };
@@ -342,10 +334,10 @@
       }
       return _results;
     };
-    Model.prototype.model = true;
     Model.prototype.newRecord = true;
     function Model(atts) {
       Model.__super__.constructor.apply(this, arguments);
+      this.ids = [];
       if (atts) {
         this.load(atts);
       }
@@ -378,7 +370,8 @@
       return result;
     };
     Model.prototype.eql = function(rec) {
-      return rec && rec.id === this.id && rec.constructor === this.constructor;
+      var _ref, _ref2;
+      return rec && rec.constructor === this.constructor && (rec.id === this.id || (_ref = this.id, __indexOf.call(rec.ids, _ref) >= 0) || (_ref2 = rec.id, __indexOf.call(this.ids, _ref2) >= 0));
     };
     Model.prototype.save = function() {
       var error;
@@ -404,12 +397,22 @@
       this.load(atts);
       return this.save();
     };
+    Model.prototype.changeID = function(id) {
+      var records;
+      this.ids.push(this.id);
+      records = this.constructor.records;
+      records[id] = records[this.id];
+      delete records[this.id];
+      this.id = id;
+      return this.save();
+    };
     Model.prototype.destroy = function() {
       this.trigger("beforeDestroy", this);
       delete this.constructor.records[this.id];
       this.destroyed = true;
       this.trigger("destroy", this);
-      return this.trigger("change", this, "destroy");
+      this.trigger("change", this, "destroy");
+      return this.unbind();
     };
     Model.prototype.dup = function(newRecord) {
       var result;
@@ -465,21 +468,33 @@
       return this.trigger("change", clone, "create");
     };
     Model.prototype.bind = function(events, callback) {
-      return this.constructor.bind(events, __bind(function(record) {
+      var binder, unbinder;
+      this.constructor.bind(events, binder = __bind(function(record) {
         if (record && this.eql(record)) {
           return callback.apply(this, arguments);
         }
       }, this));
+      this.constructor.bind("unbind", unbinder = __bind(function(record) {
+        if (record && this.eql(record)) {
+          this.constructor.unbind(events, binder);
+          return this.constructor.unbind("unbind", unbinder);
+        }
+      }, this));
+      return binder;
     };
     Model.prototype.trigger = function() {
       var _ref;
       return (_ref = this.constructor).trigger.apply(_ref, arguments);
     };
+    Model.prototype.unbind = function() {
+      return this.trigger("unbind", this);
+    };
     return Model;
   })();
-  Model.extend(Events);
   Controller = (function() {
     __extends(Controller, Module);
+    Controller.include(Events);
+    Controller.include(Log);
     Controller.prototype.eventSplitter = /^(\w+)\s*(.*)$/;
     Controller.prototype.tag = "div";
     function Controller(options) {
@@ -494,6 +509,9 @@
         this.el = document.createElement(this.tag);
       }
       this.el = $(this.el);
+      if (this.className) {
+        this.el.addClass(this.className);
+      }
       if (!this.events) {
         this.events = this.constructor.events;
       }
@@ -507,6 +525,9 @@
         this.refreshElements();
       }
     }
+    Controller.prototype.destroy = function() {
+      return this.trigger("destroy");
+    };
     Controller.prototype.$ = function(selector) {
       return $(selector, this.el);
     };
@@ -519,7 +540,11 @@
         match = key.match(this.eventSplitter);
         eventName = match[1];
         selector = match[2];
-        _results.push(selector === '' ? this.el.bind(eventName, method) : this.el.delegate(selector, eventName, method));
+        _results.push(selector === '' ? (this.el.bind(eventName, method), this.bind("destroy", function() {
+          return this.el.unbind(eventName, method);
+        })) : (this.el.delegate(selector, eventName, method), this.bind("destroy", function() {
+          return this.el.undelegate(selector, eventName, method);
+        })));
       }
       return _results;
     };
@@ -537,7 +562,9 @@
       return setTimeout(this.proxy(func), timeout || 0);
     };
     Controller.prototype.html = function(element) {
-      return this.el.html(element.el || element);
+      this.el.html(element.el || element);
+      this.refreshElements();
+      return this.el;
     };
     Controller.prototype.append = function() {
       var e, elements, _ref;
@@ -556,10 +583,33 @@
     Controller.prototype.appendTo = function(element) {
       return this.el.appendTo(element.el || element);
     };
+    Controller.prototype.prepend = function() {
+      var e, elements, _ref;
+      elements = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      elements = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          e = elements[_i];
+          _results.push(e.el || e);
+        }
+        return _results;
+      })();
+      return (_ref = this.el).prepend.apply(_ref, elements);
+    };
+    Controller.prototype.replace = function(element) {
+      var previous, _ref;
+      _ref = [this.el, element.el || element], previous = _ref[0], this.el = _ref[1];
+      previous.replaceWith(this.el);
+      this.delegateEvents();
+      this.refreshElements();
+      return this.el;
+    };
     return Controller;
   })();
-  Controller.include(Events);
-  Controller.include(Log);
+  $ = this.jQuery || this.Zepto || function(element) {
+    return element;
+  };
   if (typeof Object.create !== "function") {
     Object.create = function(o) {
       var Func;
@@ -583,6 +633,9 @@
     }).toUpperCase();
   };
   Spine = this.Spine = {};
+  if (typeof module !== "undefined" && module !== null) {
+    module.exports = Spine;
+  }
   Spine.version = "2.0.0";
   Spine.isArray = isArray;
   Spine.$ = $;
@@ -611,11 +664,20 @@
     }
     return result;
   };
+  Model.setup = function() {
+    var Instance;
+    Instance = (function() {
+      __extends(Instance, this);
+      function Instance() {
+        Instance.__super__.constructor.apply(this, arguments);
+      }
+      return Instance;
+    }).call(this);
+    Instance.configure.apply(Instance, arguments);
+    return Instance;
+  };
   Module.init = Controller.init = Model.init = function(a1, a2, a3, a4, a5) {
     return new this(a1, a2, a3, a4, a5);
   };
   Spine.Class = Module;
-  if (typeof exports !== "undefined" && exports !== null) {
-    module.exports = Spine;
-  }
 }).call(this);

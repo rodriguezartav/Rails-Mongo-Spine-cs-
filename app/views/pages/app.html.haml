@@ -1,0 +1,12 @@
+.title 
+	%span Javascript Front End
+	
+#bee
+	.content
+
+:javascript
+	var exports = this;
+	jQuery(function(){
+		var App = require("app");
+		exports.App = new App({el: $("body")});
+	})

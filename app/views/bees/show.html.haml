@@ -1,18 +1,28 @@
-%p#notice= notice
+.title
+  %span#notice= notice
 
-%p
-  %b Name:
-  = @bee.name
-%p
-  %b Email:
-  = @bee.email
-%p
-  %b Username:
-  = @bee.username
-%p
-  %b Password:
-  = @bee.password
+%ul.list.content_panel
+  %li
+    %span 
+      Name:
+      = @bee.name
+  %li
+    %span 
+      Email:
+      = @bee.email
+  %li
+    %span
+      Username:
+      = @bee.username
+  %li
+    %span
+      Password:
+      = @bee.password
 
-= link_to 'Edit', edit_bee_path(@bee)
-\|
-= link_to 'Back', bees_path
+.action_bar
+ 
+  .action_button
+    = link_to 'Edit', edit_bee_path(@bee)
+
+  .action_button
+    = link_to 'Back', bees_path

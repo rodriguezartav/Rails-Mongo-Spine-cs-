@@ -8,15 +8,21 @@
 		= stylesheet_link_tag :application
 		= javascript_include_tag :vendor
 		%script{:src => "/application.js", :type => 'text/javascript', :charset => 'utf-8'}
-			
-	
-		:javascript
-			var exports = this;
-			jQuery(function(){
-				var App = require("app");
-				exports.App = new App({el: $("body")});
-			})
 
 	%body
-		#bee
-		= yield
+		#header
+			.wrapper
+				%span.logo Bee Creator by Roberto Rodriguez
+				.menu
+					.button.standard.active
+						= link_to 'Standard App', bees_path
+					.button.dynamic
+						%a{:href=>"/app"} Dynamic App
+		#content
+			.wrapper
+				= yield
+
+		#footer
+			.wrapper
+				.contact_info
+					@rodriguezartav

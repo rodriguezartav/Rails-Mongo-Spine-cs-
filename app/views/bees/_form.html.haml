@@ -1,22 +1,15 @@
-= form_for @bee do |f|
-  -if @bee.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@bee.errors.count, "error")} prohibited this bee from being saved:"
-      %ul
-        - @bee.errors.full_messages.each do |msg|
-          %li= msg
+.content_panel
 
-  .field
-    = f.label :name
-    = f.text_field :name
-  .field
-    = f.label :email
-    = f.text_field :email
-  .field
-    = f.label :username
-    = f.text_field :username
-  .field
-    = f.label :password
-    = f.text_field :password
-  .actions
-    = f.submit 'Save'
+  = form_for @bee do |f|
+    -if @bee.errors.any?
+      #error_explanation
+        %h2= "#{pluralize(@bee.errors.count, "error")} prohibited this bee from being saved:"
+        %ul
+          - @bee.errors.full_messages.each do |msg|
+            %li= msg
+
+    = f.text_field :name  ,{"placeholder"=>"name"}
+    = f.text_field :username ,{"placeholder"=>"username"}
+
+    = f.text_field :email ,{"placeholder"=>"email"}
+    = f.text_field :password ,{"placeholder"=>"password"}

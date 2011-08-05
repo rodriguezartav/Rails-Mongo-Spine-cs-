@@ -3,6 +3,8 @@ require("spine.route")
 require("spine.tmpl")
 require("spine.manager")
 require("spine.local")
+require("spine.ajax")
+
 
 Bee         = require("models/bee")
 
@@ -14,7 +16,7 @@ class App extends Spine.Controller
 		"#bee" : "beeEl"
 
 	constructor: ->
-		super
+		super		
 		@bees = new Bees(el: @beeEl)
 
 module.exports = App

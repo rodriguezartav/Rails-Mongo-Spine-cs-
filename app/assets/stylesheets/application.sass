@@ -1,2 +1,105 @@
-@import "compass"
-@import scaffolds
+@import "compass/reset"
+@import "colors"
+@import "helper"
+
+$page_size: 960px
+
+body
+	background-color: #fff
+
+.wrapper
+	+wrapper()
+
+#header
+	background-color: $header_bg
+	.logo
+		+gridify()
+		width: 300px
+		padding: 8px
+	.menu
+		position: absolute
+		right: 0px
+		text-aling: right
+		padding: 2px
+		margin-right: 10px
+		+gridify()
+		.button
+			+buttonify()
+			margin: 0px
+			&.active
+				background-color: #999
+#content
+	border: 1px solid $border_side
+	
+	.title
+		height: 45px
+		padding-left: 20px
+		padding-top: 25px
+		background-color: $header_bg
+		span
+			font-size: 20px
+			
+	.content_panel
+		height: 300px
+		.grid_selector
+			text-align: center
+			.option
+				+gridify()
+				width: 250px
+				height: 250px
+				border: 1px solid #333
+				margin: 15px
+				text-align: center
+				a
+					display: block			
+					margin-top: 100px
+
+		ul.list
+		border: 1px solid $border_side
+		overflow: auto
+		
+		li
+			height: 30px
+			padding-top: 10px
+			border-bottom: 1px solid $border_side
+
+			span
+				font-size: 11px
+				display: inline-block
+				width: 15%
+				&:first-child
+					padding-left: 10px
+			
+				&.button
+					width: 40px
+					cursor: pointer
+			&:hover
+				background-color: $header_bg
+			
+			&.header
+				background-color: #333
+				color: #fff
+
+		input
+			display: block
+			width: 45%
+			height: 30px
+			margin: 10px
+	
+	.action_bar
+		text-align: right
+		background-color: $header_bg
+		.action_button
+			+hoverify(#fff,#333,true)
+			+gridify()
+			margin: 8px
+			border: 1px solid #333
+			padding: 5px
+			a
+				padding: 7px
+
+#footer
+	background-color: $header_bg
+	.contact_info
+		text-align: center
+		padding: 10px
