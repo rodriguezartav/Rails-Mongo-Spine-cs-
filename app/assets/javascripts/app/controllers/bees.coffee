@@ -18,12 +18,14 @@ class Bees extends Spine.Controller
 		@content.html require("views/bees/loading")
 		Bee.bind("change refresh create" , @on_list)
 		Bee.bind("ajaxError", @on_error)
+
 		Bee.fetch()
 		$(".button").removeClass("active")
 		$(".dynamic").addClass("active")
 
+
 	on_error: (record, xhr, settings, error) ->
-		alert "error"
+		alert settings
 
 	on_list: =>
 		bees = Bee.all()
